@@ -15,16 +15,17 @@ echo "Name,Height,Weight" > "$output_file"
 
 # Process each JSON file in the directory
 for file in "$input_dir"/*.json; do
-    # Extract Name, Height, and Weight using jq
-    name=$(jq -r '.name' "$file")
-    height=$(jq -r '.height' "$file")
-    weight=$(jq -r '.weight' "$file")
+    # Extract data using jq
+    raw_data=$(jq -r '. | "\(.name),\(.height),\(.weight)"' "$file")
 
-    # Append data to the CSV file
-    echo "$name,$height,$weight" >> "$output_file"
+    # Use sed to format the data (strip unwanted spaces or ensure proper CSV format)
+    formatted_data=$(echo "$raw_data" | sed 's/ //g')
+
+    # Append formatted data to the CSV file
+    echo "$formatted_data" >> "$output_file"
 done
 
-# Calculate average height and weight using awk
+# Calculate average height and weight using awk and format using sed
 awk -F, 'NR>1 {sum_height += $2; sum_weight += $3; count++} 
 END {
     if (count > 0) {
@@ -34,6 +35,6 @@ END {
     } else {
         print "No data to calculate averages."
     }
-}' "$output_file"
+}' "$output_file" | sed 's/Average/Calculated Average/g'
 
 echo "Summary complete! Data saved to '$output_file'."
