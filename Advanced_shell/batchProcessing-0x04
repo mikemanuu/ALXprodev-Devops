@@ -28,9 +28,12 @@ fetch_pokemon_data() {
     fi
 }
 
-# Fetch data in parallel
+# Fetch data in parallel with job control
 for pokemon in "${pokemon_list[@]}"; do
     fetch_pokemon_data "$pokemon" &
+    # Get the job ID of the background process
+    job_id=$!
+    echo "Started job for $pokemon with job ID $job_id."
 done
 
 # Wait for all background processes to complete
