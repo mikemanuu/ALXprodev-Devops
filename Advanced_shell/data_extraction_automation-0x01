@@ -10,17 +10,17 @@ if [ ! -f "$JSON_FILE" ]; then
 fi
 
 # Extract data using jq
-name=$(jq -r '.name' "$JSON_FILE")
-height=$(jq -r '.height' "$JSON_FILE")
-weight=$(jq -r '.weight' "$JSON_FILE")
-type=$(jq -r '.types[0].type.name' "$JSON_FILE")
+raw_data=$(jq -r '{name: .name, height: .height, weight: .weight, type: .types[0].type.name} | @csv' "$JSON_FILE")
 
-# Convert height and weight to human-readable formats
-formatted_height=$(awk -v h="$height" 'BEGIN { printf "%.1f", h / 10 }')  # Convert decimeters to meters
-formatted_weight=$(awk -v w="$weight" 'BEGIN { printf "%.0f", w / 10 }')  # Convert hectograms to kilograms
+# Use awk to process the raw data
+formatted_output=$(echo "$raw_data" | awk -F, '
+{
+    name = $1;
+    height = $2 / 10;
+    weight = $3 / 10;
+    type = $4;
+    print name " is of type " type ", weighs " weight "kg, and is " height "m tall.";
+}' | sed 's/"//g') # Use sed to remove any double quotes from the output
 
-# Format the output as required
-output="$name is of type $type, weighs ${formatted_weight}kg, and is ${formatted_height}m tall."
-
-# Display the result
-echo "$output"
+# Display the final formatted output
+echo "$formatted_output"
