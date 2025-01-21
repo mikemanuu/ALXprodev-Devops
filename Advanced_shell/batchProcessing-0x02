@@ -1,0 +1,38 @@
+#!/bin/bash
+
+# List of Pokémon to retrieve data for
+pokemon_list=("bulbasaur" "ivysaur" "venusaur" "charmander" "charmeleon")
+
+# Base URL of the Pokémon API
+base_url="https://pokeapi.co/api/v2/pokemon"
+
+# Directory to store Pokémon data
+output_dir="pokemon_data"
+
+# Create the directory if it doesn't exist
+mkdir -p "$output_dir"
+
+# Loop through each Pokémon
+for pokemon in "${pokemon_list[@]}"; do
+    # File to store the Pokémon data
+    output_file="${output_dir}/${pokemon}.json"
+
+    echo "Fetching data for $pokemon..."
+
+    # Make the API request
+    response=$(curl -s -w "%{http_code}" -o "$output_file" "${base_url}/${pokemon}")
+    http_code=$(tail -c 3 <<< "$response")
+
+    # Check if the request was successful
+    if [[ "$http_code" == "200" ]]; then
+        echo "Data for $pokemon saved to $output_file."
+    else
+        echo "Failed to fetch data for $pokemon. HTTP status: $http_code" >&2
+        rm -f "$output_file"  # Remove the file if the request fails
+    fi
+
+    # Delay to handle potential rate-limiting (1 second)
+    sleep 1
+done
+
+echo "Batch retrieval complete. Check the $output_dir directory for results."
