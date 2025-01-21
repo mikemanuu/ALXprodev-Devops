@@ -19,7 +19,7 @@ formatted_output=$(echo "$raw_data" | awk -F, '
     height = $2 / 10;
     weight = $3 / 10;
     type = $4;
-    print name " is of type " type ", weighs " weight "kg, and is " height "m tall.";
+    print "name " " is of type " type ", weighs " weight "kg, and is " height "m tall.";
 }' | sed 's/"//g') # Use sed to remove any double quotes from the output
 
 # Display the final formatted output
