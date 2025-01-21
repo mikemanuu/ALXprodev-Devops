@@ -1,0 +1,27 @@
+#!/bin/bash
+
+# Define the input JSON file
+JSON_FILE="data.json"
+
+# Check if the JSON file exists
+if [ ! -f "$JSON_FILE" ]; then
+    echo "Error: $JSON_FILE does not exist. Please run the API request task first."
+    exit 1
+fi
+
+# Extract data using jq
+NAME=$(jq -r '.name' "$JSON_FILE")
+HEIGHT=$(jq -r '.height' "$JSON_FILE")
+WEIGHT=$(jq -r '.weight' "$JSON_FILE")
+TYPE=$(jq -r '.types[0].type.name' "$JSON_FILE")
+
+# Convert height and weight to human-readable formats
+HEIGHT=$(awk -v h="$HEIGHT" 'BEGIN { printf "%.1f", h / 10 }')  # Convert decimeters to meters
+WEIGHT=$(awk -v w="$WEIGHT" 'BEGIN { printf "%.0f", w / 10 }')  # Convert hectograms to kilograms
+
+# Format the output using sed
+OUTPUT="$NAME is of type $TYPE, weighs ${WEIGHT}kg, and is ${HEIGHT}m tall."
+FORMATTED_OUTPUT=$(echo "$OUTPUT" | sed 's/^/Result: /')
+
+# Display the result
+echo "$FORMATTED_OUTPUT"
