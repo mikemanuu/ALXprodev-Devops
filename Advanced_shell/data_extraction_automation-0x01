@@ -10,18 +10,17 @@ if [ ! -f "$JSON_FILE" ]; then
 fi
 
 # Extract data using jq
-NAME=$(jq -r '.name' "$JSON_FILE")
-HEIGHT=$(jq -r '.height' "$JSON_FILE")
-WEIGHT=$(jq -r '.weight' "$JSON_FILE")
-TYPE=$(jq -r '.types[0].type.name' "$JSON_FILE")
+name=$(jq -r '.name' "$JSON_FILE")
+height=$(jq -r '.height' "$JSON_FILE")
+weight=$(jq -r '.weight' "$JSON_FILE")
+type=$(jq -r '.types[0].type.name' "$JSON_FILE")
 
 # Convert height and weight to human-readable formats
-HEIGHT=$(awk -v h="$HEIGHT" 'BEGIN { printf "%.1f", h / 10 }')  # Convert decimeters to meters
-WEIGHT=$(awk -v w="$WEIGHT" 'BEGIN { printf "%.0f", w / 10 }')  # Convert hectograms to kilograms
+formatted_height=$(awk -v h="$height" 'BEGIN { printf "%.1f", h / 10 }')  # Convert decimeters to meters
+formatted_weight=$(awk -v w="$weight" 'BEGIN { printf "%.0f", w / 10 }')  # Convert hectograms to kilograms
 
-# Format the output using sed
-OUTPUT="$NAME is of type $TYPE, weighs ${WEIGHT}kg, and is ${HEIGHT}m tall."
-FORMATTED_OUTPUT=$(echo "$OUTPUT" | sed 's/^/Result: /')
+# Format the output as required
+output="$name is of type $type, weighs ${formatted_weight}kg, and is ${formatted_height}m tall."
 
 # Display the result
-echo "$FORMATTED_OUTPUT"
+echo "$output"
